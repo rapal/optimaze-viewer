@@ -1,0 +1,49 @@
+{
+  "name": "@rapal/optimaze-viewer",
+  "version": "0.1.0",
+  "description": "Library for viewing Optimaze floor plan. Based on Leaflet.",
+  "main": "./dist/optimaze-viewer.js",
+  "types": "./types/index.d.ts",
+  "author": "Rapal Oy",
+  "license": "MIT",
+  "scripts": {
+    "build":
+      "yarn run lint && yarn run clean && rollup -c && yarn run minify && yarn run types && yarn run types-namespace",
+    "clean": "rimraf dist types",
+    "lint": "tslint --config tslint.json --project tsconfig.json",
+    "minify":
+      "uglifyjs dist/optimaze-viewer.js --output dist/optimaze-viewer.min.js",
+    "types": "tsc --outDir types --declaration && rimraf types/**/*.js",
+    "types-namespace":
+      "echo export as namespace optimazeViewer; >> types/index.d.ts",
+    "test": "jest",
+    "test-watch": "jest --watch",
+    "test-coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "@types/es6-shim": "^0.31.35",
+    "@types/jest": "^20.0.8",
+    "es6-shim": "^0.35.3",
+    "jest": "^21.1.0",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.49.3",
+    "rollup-plugin-commonjs": "^8.2.1",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-typescript2": "^0.5.2",
+    "ts-jest": "^21.0.1",
+    "tslint": "^5.7.0",
+    "typescript": "^2.5.2",
+    "uglify-js": "^3.1.0"
+  },
+  "dependencies": {
+    "@types/leaflet": "^1.2.0",
+    "leaflet": "^1.2.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"]
+  }
+}

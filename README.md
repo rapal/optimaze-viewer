@@ -57,7 +57,7 @@ See the files in the `types/` directory for documentation.
 5. Manually add to `types/index.d.ts` the line `export as namespace optimazeViewer;`
     * Unfortunately there doesn't seem to be a way to include this automatically
 6. Run `yarn version` to increase version and create git tag
-7. Run `yarn publish` to publish to npm registry
+7. Run `yarn publish --access public` to publish to npm registry
 
 ### Files and directories
 

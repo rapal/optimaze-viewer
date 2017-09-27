@@ -1,6 +1,6 @@
 {
   "name": "@rapal/optimaze-viewer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Library for viewing Optimaze floor plan. Based on Leaflet.",
   "main": "./dist/optimaze-viewer.js",
   "types": "./types/index.d.ts",
@@ -11,15 +11,12 @@
     "url": "https://github.com/rapal/optimaze-viewer"
   },
   "scripts": {
-    "build":
-      "yarn run lint && yarn run clean && rollup -c && yarn run minify && yarn run types && yarn run types-namespace",
+    "build": "yarn run lint && yarn run clean && rollup -c && yarn run minify && yarn run types && yarn run types-namespace",
     "clean": "rimraf dist types",
     "lint": "tslint --config tslint.json --project tsconfig.json",
-    "minify":
-      "uglifyjs dist/optimaze-viewer.js --output dist/optimaze-viewer.min.js",
+    "minify": "uglifyjs dist/optimaze-viewer.js --output dist/optimaze-viewer.min.js",
     "types": "tsc --outDir types --declaration && rimraf types/**/*.js",
-    "types-namespace":
-      "echo export as namespace optimazeViewer; >> types/index.d.ts",
+    "types-namespace": "echo export as namespace optimazeViewer; >> types/index.d.ts",
     "test": "jest",
     "test-watch": "jest --watch",
     "test-coverage": "jest --coverage"
@@ -48,6 +45,12 @@
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
   }
 }

@@ -6,6 +6,10 @@
   "types": "./types/index.d.ts",
   "author": "Rapal Oy",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rapal/optimaze-viewer"
+  },
   "scripts": {
     "build":
       "yarn run lint && yarn run clean && rollup -c && yarn run minify && yarn run types && yarn run types-namespace",

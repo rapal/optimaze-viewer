@@ -1,10 +1,11 @@
+import * as L from "leaflet";
 import { Element, IElementOptions } from "./Element";
 export declare class Space extends Element {
     /**
      * A space is an element that is created based on vector boundaries.
      */
-    constructor(id: string, boundaries: IBoundary[], options?: Partial<IElementOptions>);
-    private static getPolygongs(boundaries);
+    constructor(id: string, boundaries: IBoundary[], polylineOptions?: L.PolylineOptions, elementOptions?: Partial<IElementOptions>);
+    private static getPolygons(boundaries, polylineOptions?);
 }
 export interface IBoundary {
     isVoid: boolean;

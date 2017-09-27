@@ -54,13 +54,21 @@ There is also an [example application](https://github.com/rapal/optimaze-viewer-
 
 ## Development
 
+## Requirements
+
+* [Yarn](https://yarnpkg.com/) package manager
+
 ### Workflow
 
-1. Install [Yarn](https://yarnpkg.com/)
-2. Run `yarn` to install packages
-3. Run `yarn test` to run unit tests
-4. Run `yarn build` to build using [Rollup](https://rollupjs.org/) and generate type declarations
-5. Run `yarn publish --access public` to publish to npm registry
+1. Pull master branch
+2. Create feature branch
+3. Run `yarn` to install dependencies
+4. Run `yarn test` to run unit tests
+5. Run `yarn build` to build and generate type declarations
+6. Create pull request and squash merge to master
+7. Run `yarn publish --access public` to increment version and publish to npm registry
+8. Push version increase and tag to master
+9. Create GitHub release
 
 ### Directories
 

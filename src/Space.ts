@@ -8,13 +8,14 @@ export class Space extends Element {
   public constructor(
     id: string,
     boundaries: IBoundary[],
-    options: Partial<IElementOptions> = {}
+    polylineOptions?: L.PolylineOptions,
+    elementOptions?: Partial<IElementOptions>
   ) {
-    const polygons = Space.getPolygongs(boundaries);
-    super(id, polygons, options);
+    const polygons = Space.getPolygons(boundaries, polylineOptions);
+    super(id, polygons, elementOptions);
   }
 
-  private static getPolygongs(boundaries: IBoundary[]): L.Polygon[] {
+  private static getPolygons(boundaries: IBoundary[], polylineOptions?: L.PolylineOptions): L.Polygon[] {
     const getLatLngs = (coordinates: ICoordinate[]) =>
       coordinates.map(c => new L.LatLng(c.y, c.x));
 
@@ -25,7 +26,7 @@ export class Space extends Element {
     const polygons = boundaries
       .filter(b => !b.isVoid)
       .map(b => getLatLngs(b.coordinates))
-      .map(latlngs => new L.Polygon([latlngs].concat(holes)));
+      .map(latlngs => new L.Polygon([latlngs].concat(holes), polylineOptions));
 
     return polygons;
   }

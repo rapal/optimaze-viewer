@@ -244,14 +244,13 @@ var Space = /** @class */ (function (_super) {
     /**
      * A space is an element that is created based on vector boundaries.
      */
-    function Space(id, boundaries, options) {
-        if (options === void 0) { options = {}; }
+    function Space(id, boundaries, polylineOptions, elementOptions) {
         var _this = this;
-        var polygons = Space.getPolygongs(boundaries);
-        _this = _super.call(this, id, polygons, options) || this;
+        var polygons = Space.getPolygons(boundaries, polylineOptions);
+        _this = _super.call(this, id, polygons, elementOptions) || this;
         return _this;
     }
-    Space.getPolygongs = function (boundaries) {
+    Space.getPolygons = function (boundaries, polylineOptions) {
         var getLatLngs = function (coordinates) {
             return coordinates.map(function (c) { return new L.LatLng(c.y, c.x); });
         };
@@ -261,7 +260,7 @@ var Space = /** @class */ (function (_super) {
         var polygons = boundaries
             .filter(function (b) { return !b.isVoid; })
             .map(function (b) { return getLatLngs(b.coordinates); })
-            .map(function (latlngs) { return new L.Polygon([latlngs].concat(holes)); });
+            .map(function (latlngs) { return new L.Polygon([latlngs].concat(holes), polylineOptions); });
         return polygons;
     };
     return Space;

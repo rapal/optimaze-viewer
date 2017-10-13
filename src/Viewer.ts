@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Space } from "./Space";
+import { FunctionalTileLayer, TileFunction } from "./FunctionalTileLayer";
 
 export class Viewer extends L.Map {
   private static _tileSize = 384;
@@ -55,7 +55,7 @@ export class Viewer extends L.Map {
    * Adds a tile layer to the map with appropriate default options for graphics tile layers.
    * Default options can be overwritten or extended by passing custom options.
    */
-  public addTileLayer(urlTemplate: string, options?: L.TileLayerOptions): this {
+  public addTileLayer(tileFunction: TileFunction, options?: L.TileLayerOptions): this {
     const defaultOptions: L.TileLayerOptions = {
       tileSize: Viewer._tileSize,
       bounds: this._initialBounds,
@@ -71,7 +71,7 @@ export class Viewer extends L.Map {
       ...options
     };
 
-    const tileLayer = new L.TileLayer(urlTemplate, combinedOptions);
+    const tileLayer = new FunctionalTileLayer(tileFunction, combinedOptions);
 
     this.addLayer(tileLayer);
     return this;

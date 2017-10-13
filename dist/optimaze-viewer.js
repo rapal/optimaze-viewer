@@ -38,6 +38,40 @@ var __assign = Object.assign || function __assign(t) {
     return t;
 };
 
+var FunctionalTileLayer = /** @class */ (function (_super) {
+    __extends(FunctionalTileLayer, _super);
+    function FunctionalTileLayer(tileFunction, options) {
+        var _this = _super.call(this, "", options) || this;
+        _this._tileFunction = tileFunction;
+        return _this;
+    }
+    FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
+        var _this = this;
+        var tile = document.createElement("img");
+        L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
+        L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
+        if (this.options.crossOrigin) {
+            tile.crossOrigin = "";
+        }
+        tile.alt = "";
+        tile.setAttribute("role", "presentation");
+        var fixedCoordinates = {
+            x: coordinates.x,
+            y: coordinates.y,
+            z: coordinates.z + (this.options.zoomOffset || 0)
+        };
+        this._tileFunction(fixedCoordinates).then(function (url) {
+            tile.src = url;
+            _this.fire("tileloadstart", {
+                tile: tile,
+                url: tile.src
+            });
+        });
+        return tile;
+    };
+    return FunctionalTileLayer;
+}(L.TileLayer));
+
 var Viewer = /** @class */ (function (_super) {
     __extends(Viewer, _super);
     /**
@@ -82,7 +116,7 @@ var Viewer = /** @class */ (function (_super) {
      * Adds a tile layer to the map with appropriate default options for graphics tile layers.
      * Default options can be overwritten or extended by passing custom options.
      */
-    Viewer.prototype.addTileLayer = function (urlTemplate, options) {
+    Viewer.prototype.addTileLayer = function (tileFunction, options) {
         var defaultOptions = {
             tileSize: Viewer._tileSize,
             bounds: this._initialBounds,
@@ -93,7 +127,7 @@ var Viewer = /** @class */ (function (_super) {
             noWrap: true
         };
         var combinedOptions = __assign({}, defaultOptions, options);
-        var tileLayer = new L.TileLayer(urlTemplate, combinedOptions);
+        var tileLayer = new FunctionalTileLayer(tileFunction, combinedOptions);
         this.addLayer(tileLayer);
         return this;
     };
@@ -285,6 +319,7 @@ var Space = /** @class */ (function (_super) {
 exports.Viewer = Viewer;
 exports.Element = Element;
 exports.Space = Space;
+exports.FunctionalTileLayer = FunctionalTileLayer;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

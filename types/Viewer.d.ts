@@ -1,4 +1,5 @@
 import * as L from "leaflet";
+import { TileFunction } from "./FunctionalTileLayer";
 export declare class Viewer extends L.Map {
     private static _tileSize;
     private _dimensions;
@@ -19,7 +20,7 @@ export declare class Viewer extends L.Map {
      * Adds a tile layer to the map with appropriate default options for graphics tile layers.
      * Default options can be overwritten or extended by passing custom options.
      */
-    addTileLayer(urlTemplate: string, options?: L.TileLayerOptions): this;
+    addTileLayer(tileFunction: TileFunction, options?: L.TileLayerOptions): this;
     private _initBounds(dimensions);
     private _getCRS(dimensions);
 }

@@ -1,12 +1,12 @@
 import * as L from "leaflet";
 
-interface ITileCoordinates {
+export interface ITileCoordinates {
   x: number;
   y: number;
   z: number;
 }
 
-type TileFunction = (coordinates: ITileCoordinates) => Promise<string>;
+export type TileFunction = (coordinates: ITileCoordinates) => Promise<string>;
 
 export class FunctionalTileLayer extends L.TileLayer {
   private _tileOnLoad: () => void;
@@ -14,15 +14,14 @@ export class FunctionalTileLayer extends L.TileLayer {
   private _tileFunction: TileFunction;
 
   constructor(tileFunction: TileFunction, options?: L.TileLayerOptions) {
-    super(null, options);
+    super("", options);
     this._tileFunction = tileFunction;
   }
 
-  protected getTileUrl(coordinates: ITileCoordinates) {
-    return this._tileFunction(coordinates);
-  }
-
-  protected createTile(coordinates: ITileCoordinates, done): HTMLImageElement {
+  protected createTile(
+    coordinates: ITileCoordinates,
+    done: () => void
+  ): HTMLImageElement {
     const tile = document.createElement("img");
 
     L.DomEvent.on(
@@ -44,7 +43,13 @@ export class FunctionalTileLayer extends L.TileLayer {
     tile.alt = "";
     tile.setAttribute("role", "presentation");
 
-    this._tileFunction(coordinates).then(url => {
+    const fixedCoordinates = {
+      x: coordinates.x,
+      y: coordinates.y,
+      z: coordinates.z + (this.options.zoomOffset || 0)
+    };
+
+    this._tileFunction(fixedCoordinates).then(url => {
       tile.src = url;
       this.fire("tileloadstart", {
         tile,

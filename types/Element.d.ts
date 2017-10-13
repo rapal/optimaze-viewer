@@ -11,7 +11,7 @@ export declare class Element extends L.FeatureGroup {
      * An element has one or more paths and can be selected and styled.
      * Extends L.FeatureGroup which provides interaction events.
      */
-    constructor(id: string, paths: L.Path[], options?: IElementOptions);
+    constructor(id: string, paths: L.Path[], options?: ElementOptions);
     /**
      * Function that is used to update the path styles for the element.
      * Used in the constructor and whenever updateStyles() is called.
@@ -32,7 +32,7 @@ export declare class Element extends L.FeatureGroup {
      */
     updateStyle(): this;
 }
-export interface IElementOptions {
+export interface ElementOptions {
     selectable?: boolean;
     selected?: boolean;
     styleFunction?: (element: Element) => L.PathOptions;

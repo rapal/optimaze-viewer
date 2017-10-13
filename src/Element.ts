@@ -24,7 +24,7 @@ export class Element extends L.FeatureGroup {
   public constructor(
     id: string,
     paths: L.Path[],
-    options: IElementOptions = {}
+    options: ElementOptions = {}
   ) {
     super(paths);
 
@@ -113,7 +113,7 @@ export class Element extends L.FeatureGroup {
   }
 }
 
-export interface IElementOptions {
+export interface ElementOptions {
   selectable?: boolean;
   selected?: boolean;
   styleFunction?: (element: Element) => L.PathOptions;

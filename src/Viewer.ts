@@ -3,7 +3,7 @@ import { FunctionalTileLayer, TileFunction } from "./FunctionalTileLayer";
 
 export class Viewer extends L.Map {
   private static _tileSize = 384;
-  private _dimensions: IDimensions;
+  private _dimensions: Dimensions;
   private _initialBounds: L.LatLngBounds;
 
   /**
@@ -14,7 +14,7 @@ export class Viewer extends L.Map {
    */
   constructor(
     element: HTMLElement | string,
-    dimensions: IDimensions,
+    dimensions: Dimensions,
     mapOptions?: L.MapOptions
   ) {
     const defaultMapOptions: L.MapOptions = {
@@ -40,11 +40,11 @@ export class Viewer extends L.Map {
    * The dimensions of the floor plan. One coordinate equals one millimeter.
    * Initially set in constructor, but can be updated later.
    */
-  public get dimensions(): IDimensions {
+  public get dimensions(): Dimensions {
     return this._dimensions;
   }
 
-  public set dimensions(dimensions: IDimensions) {
+  public set dimensions(dimensions: Dimensions) {
     this._dimensions = dimensions;
     const crs = this._getCRS(dimensions);
     this.options.crs = crs;
@@ -77,7 +77,7 @@ export class Viewer extends L.Map {
     return this;
   }
 
-  private _initBounds(dimensions: IDimensions) {
+  private _initBounds(dimensions: Dimensions) {
     const southWest = new L.LatLng(dimensions.minY, dimensions.minX);
     const northEast = new L.LatLng(dimensions.maxY, dimensions.maxX);
     const bounds = new L.LatLngBounds(southWest, northEast);
@@ -85,7 +85,7 @@ export class Viewer extends L.Map {
     this.fitBounds(bounds);
   }
 
-  private _getCRS(dimensions: IDimensions): L.CRS {
+  private _getCRS(dimensions: Dimensions): L.CRS {
     const lengthX = dimensions.maxX - dimensions.minX;
     const lengthY = dimensions.maxY - dimensions.minY;
     const lengthMax = Math.max(lengthX, lengthY);
@@ -117,7 +117,7 @@ export class Viewer extends L.Map {
 /**
  * Floor plan dimensions. One coordinate unit equals one millimeter.
  */
-export interface IDimensions {
+export interface Dimensions {
   minX: number;
   maxX: number;
   minY: number;

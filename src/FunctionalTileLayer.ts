@@ -1,12 +1,12 @@
 import * as L from "leaflet";
 
-export interface ITileCoordinates {
+export interface TileCoordinates {
   x: number;
   y: number;
   z: number;
 }
 
-export type TileFunction = (coordinates: ITileCoordinates) => Promise<string>;
+export type TileFunction = (coordinates: TileCoordinates) => Promise<string>;
 
 export class FunctionalTileLayer extends L.TileLayer {
   private _tileOnLoad: () => void;
@@ -19,7 +19,7 @@ export class FunctionalTileLayer extends L.TileLayer {
   }
 
   protected createTile(
-    coordinates: ITileCoordinates,
+    coordinates: TileCoordinates,
     done: () => void
   ): HTMLImageElement {
     const tile = document.createElement("img");

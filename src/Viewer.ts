@@ -1,5 +1,7 @@
 import * as L from "leaflet";
-import { FunctionalTileLayer, TileFunction } from "./FunctionalTileLayer";
+import { FunctionalTileLayer, TileFunction } from "./layer";
+import { getCRS } from "./crs";
+import { Dimensions, getBounds } from "./dimensions";
 
 export class Viewer extends L.Map {
   private static _tileSize = 384;
@@ -46,16 +48,22 @@ export class Viewer extends L.Map {
 
   public set dimensions(dimensions: Dimensions) {
     this._dimensions = dimensions;
-    const crs = this._getCRS(dimensions);
+    const crs = getCRS(dimensions);
     this.options.crs = crs;
-    this._initBounds(dimensions);
+
+    const bounds = getBounds(dimensions);
+    this._initialBounds = bounds;
+    this.fitBounds(bounds);
   }
 
   /**
    * Adds a tile layer to the map with appropriate default options for graphics tile layers.
    * Default options can be overwritten or extended by passing custom options.
    */
-  public addTileLayer(tileFunction: TileFunction, options?: L.TileLayerOptions): this {
+  public addTileLayer(
+    tileFunction: TileFunction,
+    options?: L.TileLayerOptions
+  ): this {
     const defaultOptions: L.TileLayerOptions = {
       tileSize: Viewer._tileSize,
       bounds: this._initialBounds,
@@ -76,50 +84,4 @@ export class Viewer extends L.Map {
     this.addLayer(tileLayer);
     return this;
   }
-
-  private _initBounds(dimensions: Dimensions) {
-    const southWest = new L.LatLng(dimensions.minY, dimensions.minX);
-    const northEast = new L.LatLng(dimensions.maxY, dimensions.maxX);
-    const bounds = new L.LatLngBounds(southWest, northEast);
-    this._initialBounds = bounds;
-    this.fitBounds(bounds);
-  }
-
-  private _getCRS(dimensions: Dimensions): L.CRS {
-    const lengthX = dimensions.maxX - dimensions.minX;
-    const lengthY = dimensions.maxY - dimensions.minY;
-    const lengthMax = Math.max(lengthX, lengthY);
-
-    const minLat = (lengthMax - lengthY) / 2 - lengthMax;
-    const minLng = (lengthMax - lengthX) / 2;
-
-    const offsetY = minLat - dimensions.minY;
-    const offsetX = minLng - dimensions.minX;
-
-    return L.Util.extend(L.CRS, {
-      projection: L.Projection.LonLat,
-      transformation: new L.Transformation(1, offsetX, -1, -offsetY),
-      scale(zoom: number) {
-        return Viewer._tileSize / lengthMax * Math.pow(2, zoom);
-      },
-      zoom(scale: number) {
-        return Math.log(scale * lengthMax / Viewer._tileSize) / Math.LN2;
-      },
-      getSize(zoom: number) {
-        const s = this.scale(zoom) / this.lengthMax;
-        return new L.Point(s, s);
-      },
-      infinite: true
-    });
-  }
-}
-
-/**
- * Floor plan dimensions. One coordinate unit equals one millimeter.
- */
-export interface Dimensions {
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
 }

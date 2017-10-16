@@ -1,7 +1,7 @@
 import * as L from "leaflet";
 import { FunctionalTileLayer, TileFunction } from "./layer";
-import { getCRS } from "./crs";
 import { Dimensions, getBounds } from "./dimensions";
+import { getCRS } from "./crs";
 
 export class Viewer extends L.Map {
   private _dimensions: Dimensions;

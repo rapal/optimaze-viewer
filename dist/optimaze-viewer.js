@@ -38,6 +38,15 @@ var __assign = Object.assign || function __assign(t) {
     return t;
 };
 
+/**
+ * Gets bounds from dimensions.
+ */
+function getBounds(dimensions) {
+    var southWest = new L.LatLng(dimensions.minY, dimensions.minX);
+    var northEast = new L.LatLng(dimensions.maxY, dimensions.maxX);
+    return new L.LatLngBounds(southWest, northEast);
+}
+
 function getCRS(dimensions) {
     var tileSize = 384;
     var lengthX = dimensions.maxX - dimensions.minX;
@@ -62,15 +71,6 @@ function getCRS(dimensions) {
         },
         infinite: true
     });
-}
-
-/**
- * Gets bounds from dimensions.
- */
-function getBounds(dimensions) {
-    var southWest = new L.LatLng(dimensions.minY, dimensions.minX);
-    var northEast = new L.LatLng(dimensions.maxY, dimensions.maxX);
-    return new L.LatLngBounds(southWest, northEast);
 }
 
 var Viewer = /** @class */ (function (_super) {

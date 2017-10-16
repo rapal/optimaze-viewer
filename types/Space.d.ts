@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Element, ElementOptions } from "./Element";
+import { Element, ElementOptions } from "./element";
 export declare class Space extends Element {
     /**
      * A space is an element that is created based on vector boundaries.

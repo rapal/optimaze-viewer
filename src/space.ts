@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Element, ElementOptions } from "./Element";
+import { Element, ElementOptions } from "./element";
 
 export class Space extends Element {
   /**

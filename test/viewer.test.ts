@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Viewer } from "../src/Viewer";
+import { Viewer } from "../src/viewer";
 import { Dimensions } from "../src/dimensions";
 
 const dimension: Dimensions = {

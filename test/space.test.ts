@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Space, Boundary } from "../src/Space";
+import { Space, Boundary } from "../src/space";
 
 const boundary1: Boundary = {
   isVoid: false,

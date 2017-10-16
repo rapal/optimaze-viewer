@@ -1,4 +1,5 @@
 import * as L from "leaflet";
+import { Dimensions, getBounds } from "./dimensions";
 
 export class FunctionalTileLayer extends L.TileLayer {
   private _tileOnLoad: () => void;
@@ -8,9 +9,30 @@ export class FunctionalTileLayer extends L.TileLayer {
   /**
    * Tile layer where the image url is resolved using a function instead of a template.
    * Can be used to fetch images as data urls from an authenticated API.
+   * Uses appropriate default options for Optimaze graphics layers.
+   * Default options can be overwritten or extended by passing custom options.
    */
-  constructor(tileFunction: TileFunction, options?: L.TileLayerOptions) {
-    super("", options);
+  constructor(
+    tileFunction: TileFunction,
+    dimensions: Dimensions,
+    options?: L.TileLayerOptions
+  ) {
+    const defaultOptions: L.TileLayerOptions = {
+      tileSize: 384,
+      bounds: getBounds(dimensions),
+      minZoom: 0,
+      maxZoom: 10,
+      maxNativeZoom: L.Browser.retina ? 3 : 4,
+      detectRetina: true,
+      noWrap: true
+    };
+
+    const combinedOptions = {
+      ...defaultOptions,
+      ...options
+    };
+
+    super("", combinedOptions);
     this._tileFunction = tileFunction;
   }
 

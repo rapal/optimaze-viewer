@@ -1,4 +1,5 @@
 import * as L from "leaflet";
+import { Dimensions } from "./dimensions";
 
 export function getCRS(dimensions: Dimensions): L.CRS {
   const tileSize = 384;

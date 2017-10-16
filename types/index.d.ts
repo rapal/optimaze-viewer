@@ -1,6 +1,6 @@
-export { Viewer, Dimensions } from "./Viewer";
+export { Viewer } from "./Viewer";
+export { Dimensions } from "./dimensions";
 export { Element, ElementOptions } from "./Element";
 export { Space, Boundary, Coordinates } from "./Space";
-export { GraphicsLayer } from "./GraphicsLayer";
-export { FunctionalTileLayer, TileFunction, TileCoordinates } from "./FunctionalTileLayer";
+export { FunctionalTileLayer, TileFunction, TileCoordinates, GraphicsLayer } from "./layer";
 export as namespace optimazeViewer; 

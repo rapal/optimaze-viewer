@@ -38,46 +38,47 @@ var __assign = Object.assign || function __assign(t) {
     return t;
 };
 
-var FunctionalTileLayer = /** @class */ (function (_super) {
-    __extends(FunctionalTileLayer, _super);
-    function FunctionalTileLayer(tileFunction, options) {
-        var _this = _super.call(this, "", options) || this;
-        _this._tileFunction = tileFunction;
-        return _this;
-    }
-    FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
-        var _this = this;
-        var tile = document.createElement("img");
-        L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
-        L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
-        if (this.options.crossOrigin) {
-            tile.crossOrigin = "";
-        }
-        tile.alt = "";
-        tile.setAttribute("role", "presentation");
-        var fixedCoordinates = {
-            x: coordinates.x,
-            y: coordinates.y,
-            z: coordinates.z + (this.options.zoomOffset || 0)
-        };
-        this._tileFunction(fixedCoordinates).then(function (url) {
-            tile.src = url;
-            _this.fire("tileloadstart", {
-                tile: tile,
-                url: tile.src
-            });
-        });
-        return tile;
-    };
-    return FunctionalTileLayer;
-}(L.TileLayer));
+function getCRS(dimensions) {
+    var tileSize = 384;
+    var lengthX = dimensions.maxX - dimensions.minX;
+    var lengthY = dimensions.maxY - dimensions.minY;
+    var lengthMax = Math.max(lengthX, lengthY);
+    var minLat = (lengthMax - lengthY) / 2 - lengthMax;
+    var minLng = (lengthMax - lengthX) / 2;
+    var offsetY = minLat - dimensions.minY;
+    var offsetX = minLng - dimensions.minX;
+    return L.Util.extend(L.CRS, {
+        projection: L.Projection.LonLat,
+        transformation: new L.Transformation(1, offsetX, -1, -offsetY),
+        scale: function (zoom) {
+            return tileSize / lengthMax * Math.pow(2, zoom);
+        },
+        zoom: function (scale) {
+            return Math.log(scale * lengthMax / tileSize) / Math.LN2;
+        },
+        getSize: function (zoom) {
+            var s = this.scale(zoom) / this.lengthMax;
+            return new L.Point(s, s);
+        },
+        infinite: true
+    });
+}
+
+/**
+ * Gets bounds from dimensions.
+ */
+function getBounds(dimensions) {
+    var southWest = new L.LatLng(dimensions.minY, dimensions.minX);
+    var northEast = new L.LatLng(dimensions.maxY, dimensions.maxX);
+    return new L.LatLngBounds(southWest, northEast);
+}
 
 var Viewer = /** @class */ (function (_super) {
     __extends(Viewer, _super);
     /**
      * The viewer is a map for showing floor plans. It extends L.Map with
      * a custom coordinate reference system, initial bounds based on floor plan
-     * dimensions, and appropriate default options for the map and tile layers.
+     * dimensions, and appropriate default options for the map.
      * Default options can be overwritten or extended by passing custom options.
      */
     function Viewer(element, dimensions, mapOptions) {
@@ -99,70 +100,21 @@ var Viewer = /** @class */ (function (_super) {
         /**
          * The dimensions of the floor plan. One coordinate equals one millimeter.
          * Initially set in constructor, but can be updated later.
+         * Setting dimensions fits the map bounds to the dimensions.
          */
         get: function () {
             return this._dimensions;
         },
         set: function (dimensions) {
             this._dimensions = dimensions;
-            var crs = this._getCRS(dimensions);
+            var crs = getCRS(dimensions);
             this.options.crs = crs;
-            this._initBounds(dimensions);
+            var bounds = getBounds(dimensions);
+            this.fitBounds(bounds);
         },
         enumerable: true,
         configurable: true
     });
-    /**
-     * Adds a tile layer to the map with appropriate default options for graphics tile layers.
-     * Default options can be overwritten or extended by passing custom options.
-     */
-    Viewer.prototype.addTileLayer = function (tileFunction, options) {
-        var defaultOptions = {
-            tileSize: Viewer._tileSize,
-            bounds: this._initialBounds,
-            minZoom: this.options.minZoom,
-            maxZoom: this.options.maxZoom,
-            maxNativeZoom: L.Browser.retina ? 3 : 4,
-            detectRetina: true,
-            noWrap: true
-        };
-        var combinedOptions = __assign({}, defaultOptions, options);
-        var tileLayer = new FunctionalTileLayer(tileFunction, combinedOptions);
-        this.addLayer(tileLayer);
-        return this;
-    };
-    Viewer.prototype._initBounds = function (dimensions) {
-        var southWest = new L.LatLng(dimensions.minY, dimensions.minX);
-        var northEast = new L.LatLng(dimensions.maxY, dimensions.maxX);
-        var bounds = new L.LatLngBounds(southWest, northEast);
-        this._initialBounds = bounds;
-        this.fitBounds(bounds);
-    };
-    Viewer.prototype._getCRS = function (dimensions) {
-        var lengthX = dimensions.maxX - dimensions.minX;
-        var lengthY = dimensions.maxY - dimensions.minY;
-        var lengthMax = Math.max(lengthX, lengthY);
-        var minLat = (lengthMax - lengthY) / 2 - lengthMax;
-        var minLng = (lengthMax - lengthX) / 2;
-        var offsetY = minLat - dimensions.minY;
-        var offsetX = minLng - dimensions.minX;
-        return L.Util.extend(L.CRS, {
-            projection: L.Projection.LonLat,
-            transformation: new L.Transformation(1, offsetX, -1, -offsetY),
-            scale: function (zoom) {
-                return Viewer._tileSize / lengthMax * Math.pow(2, zoom);
-            },
-            zoom: function (scale) {
-                return Math.log(scale * lengthMax / Viewer._tileSize) / Math.LN2;
-            },
-            getSize: function (zoom) {
-                var s = this.scale(zoom) / this.lengthMax;
-                return new L.Point(s, s);
-            },
-            infinite: true
-        });
-    };
-    Viewer._tileSize = 384;
     return Viewer;
 }(L.Map));
 
@@ -300,6 +252,60 @@ var Space = /** @class */ (function (_super) {
     return Space;
 }(Element));
 
+var FunctionalTileLayer = /** @class */ (function (_super) {
+    __extends(FunctionalTileLayer, _super);
+    /**
+     * Tile layer where the image url is resolved using a function instead of a template.
+     * Can be used to fetch images as data urls from an authenticated API.
+     * Uses appropriate default options for Optimaze graphics layers.
+     * Default options can be overwritten or extended by passing custom options.
+     */
+    function FunctionalTileLayer(tileFunction, dimensions, options) {
+        var _this = this;
+        var defaultOptions = {
+            tileSize: 384,
+            bounds: getBounds(dimensions),
+            minZoom: 0,
+            maxZoom: 10,
+            maxNativeZoom: L.Browser.retina ? 3 : 4,
+            detectRetina: true,
+            noWrap: true
+        };
+        var combinedOptions = __assign({}, defaultOptions, options);
+        _this = _super.call(this, "", combinedOptions) || this;
+        _this._tileFunction = tileFunction;
+        return _this;
+    }
+    /**
+     * Overrides the default tile creation method.
+     * Creates an img element and calls the tile function to get a promise to resolve the url.
+     */
+    FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
+        var _this = this;
+        var tile = document.createElement("img");
+        L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
+        L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
+        if (this.options.crossOrigin) {
+            tile.crossOrigin = "";
+        }
+        tile.alt = "";
+        tile.setAttribute("role", "presentation");
+        var fixedCoordinates = {
+            x: coordinates.x,
+            y: coordinates.y,
+            z: coordinates.z + (this.options.zoomOffset || 0)
+        };
+        this._tileFunction(fixedCoordinates).then(function (url) {
+            tile.src = url;
+            _this.fire("tileloadstart", {
+                tile: tile,
+                url: tile.src
+            });
+        });
+        return tile;
+    };
+    return FunctionalTileLayer;
+}(L.TileLayer));
 /**
  * Enum for Optimaze graphics tile layers.
  */

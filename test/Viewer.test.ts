@@ -1,7 +1,8 @@
 import * as L from "leaflet";
-import { Viewer, IDimensions } from "../src/Viewer";
+import { Viewer } from "../src/Viewer";
+import { Dimensions } from "../src/dimensions";
 
-const dimension: IDimensions = {
+const dimension: Dimensions = {
   minX: 0,
   maxX: 10000,
   minY: -10000,
@@ -41,24 +42,4 @@ test("can override map options", () => {
   expect(viewer.options.doubleClickZoom).toBe(true);
   expect(viewer.options.zoomSnap).toBe(0.5);
   expect(viewer.options.zoomDelta).toBe(1);
-});
-
-test("can add tile layers with default options", () => {
-  const htmlElement = document.createElement("div");
-  const viewer = new Viewer(htmlElement, dimension);
-  const tileFunction = async () => "urltemplate";
-
-  viewer.addTileLayer(tileFunction);
-
-  const tileLayers: L.TileLayer[] = [];
-  viewer.eachLayer(l => {
-    if (l instanceof L.TileLayer) {
-      tileLayers.push(l);
-    }
-  });
-
-  expect(tileLayers.length).toBe(1);
-  expect(tileLayers[0].options.minZoom).toBe(0);
-  expect(tileLayers[0].options.maxZoom).toBe(10);
-  expect(tileLayers[0].options.detectRetina).toBe(true);
 });

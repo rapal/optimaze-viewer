@@ -46,7 +46,9 @@ test("can override map options", () => {
 test("can add tile layers with default options", () => {
   const htmlElement = document.createElement("div");
   const viewer = new Viewer(htmlElement, dimension);
-  viewer.addTileLayer("urltemplate");
+  const tileFunction = async () => "urltemplate";
+
+  viewer.addTileLayer(tileFunction);
 
   const tileLayers: L.TileLayer[] = [];
   viewer.eachLayer(l => {

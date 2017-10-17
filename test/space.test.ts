@@ -1,7 +1,7 @@
 import * as L from "leaflet";
-import { Space, IBoundary } from "../src/Space";
+import { Space, Boundary } from "../src/space";
 
-const boundary1: IBoundary = {
+const boundary1: Boundary = {
   isVoid: false,
   coordinates: [
     { x: 0, y: 0 },
@@ -12,7 +12,7 @@ const boundary1: IBoundary = {
   ]
 };
 
-const boundary2: IBoundary = {
+const boundary2: Boundary = {
   isVoid: false,
   coordinates: [
     { x: 200, y: 200 },
@@ -23,7 +23,7 @@ const boundary2: IBoundary = {
   ]
 };
 
-const void1: IBoundary = {
+const void1: Boundary = {
   isVoid: true,
   coordinates: [
     { x: 40, y: 40 },

@@ -1,4 +1,10 @@
-export { Viewer, IDimensions } from "./Viewer";
-export { Element, IElementOptions } from "./Element";
-export { Space, IBoundary, ICoordinate } from "./Space";
-export { GraphicsLayer } from "./GraphicsLayer";
+export { Viewer } from "./viewer";
+export { Dimensions } from "./dimensions";
+export { Element, ElementOptions } from "./element";
+export { Space, Boundary, Coordinates } from "./space";
+export {
+  FunctionalTileLayer,
+  TileFunction,
+  TileCoordinates,
+  GraphicsLayer
+} from "./layer";

@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Element } from "../src/Element";
+import { Element } from "../src/element";
 
 function getCircle() {
   return new L.Circle(new L.LatLng(0, 0), 100);

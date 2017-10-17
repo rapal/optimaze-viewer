@@ -1,5 +1,5 @@
 import * as L from "leaflet";
-import { Element, IElementOptions } from "./Element";
+import { Element, ElementOptions } from "./element";
 
 export class Space extends Element {
   /**
@@ -7,16 +7,16 @@ export class Space extends Element {
    */
   public constructor(
     id: string,
-    boundaries: IBoundary[],
+    boundaries: Boundary[],
     polylineOptions?: L.PolylineOptions,
-    elementOptions?: Partial<IElementOptions>
+    elementOptions?: Partial<ElementOptions>
   ) {
     const polygons = Space.getPolygons(boundaries, polylineOptions);
     super(id, polygons, elementOptions);
   }
 
-  private static getPolygons(boundaries: IBoundary[], polylineOptions?: L.PolylineOptions): L.Polygon[] {
-    const getLatLngs = (coordinates: ICoordinate[]) =>
+  private static getPolygons(boundaries: Boundary[], polylineOptions?: L.PolylineOptions): L.Polygon[] {
+    const getLatLngs = (coordinates: Coordinates[]) =>
       coordinates.map(c => new L.LatLng(c.y, c.x));
 
     const holes = boundaries
@@ -32,12 +32,12 @@ export class Space extends Element {
   }
 }
 
-export interface IBoundary {
+export interface Boundary {
   isVoid: boolean;
-  coordinates: ICoordinate[];
+  coordinates: Coordinates[];
 }
 
-export interface ICoordinate {
+export interface Coordinates {
   x: number;
   y: number;
 }

@@ -54,7 +54,7 @@ There is also an [example application](https://github.com/rapal/optimaze-viewer-
 
 ## Development
 
-## Requirements
+### Requirements
 
 * [Yarn](https://yarnpkg.com/) package manager
 

@@ -72,6 +72,10 @@ function getCRS(dimensions) {
         offsetY = minLat - dimensions.minY;
     }
     return L.Util.extend(L.CRS.Simple, {
+        // TODO: Rotate by other than 180 degrees by creating custom Transformation
+        // Transformation must implement methods _transform(), transform() and untransform()
+        // https://github.com/Leaflet/Leaflet/blob/master/src/geo/crs/CRS.js
+        // https://github.com/Leaflet/Leaflet/blob/master/src/geometry/Transformation.js
         transformation: new L.Transformation(transformX, offsetX, transformY, offsetY),
         scale: function (zoom) {
             return tileSize / lengthMax * Math.pow(2, zoom);

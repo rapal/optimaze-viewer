@@ -15,7 +15,7 @@ export declare class FunctionalTileLayer extends L.TileLayer {
      * Overrides the default tile creation method.
      * Creates an img element and calls the tile function to get a promise to resolve the url.
      */
-    protected createTile(coordinates: TileCoordinates, done: () => void): HTMLImageElement;
+    protected createTile(coordinates: TileCoordinates, done: () => void): HTMLDivElement;
 }
 export interface TileCoordinates {
     x: number;
@@ -36,4 +36,10 @@ export declare enum GraphicsLayer {
     Elevators = 9,
     Shafts = 11,
     Atrium = 23,
+}
+export declare enum MapRotation {
+    Rotate0 = 0,
+    Rotate90 = 90,
+    Rotate180 = 180,
+    Rotate270 = 270,
 }

@@ -8,15 +8,37 @@ export function getCRS(dimensions: Dimensions): L.CRS {
   const lengthY = dimensions.maxY - dimensions.minY;
   const lengthMax = Math.max(lengthX, lengthY);
 
-  const minLat = (lengthMax - lengthY) / 2 - lengthMax;
+  const minLat = (lengthMax - lengthY) / 2;
   const minLng = (lengthMax - lengthX) / 2;
 
-  const offsetY = minLat - dimensions.minY;
-  const offsetX = minLng - dimensions.minX;
+  const rotate = true;
+
+  let transformX: number;
+  let transformY: number;
+  let offsetX: number;
+  let offsetY: number;
+
+  if (!rotate) {
+    transformX = 1;
+    transformY = -1;
+    offsetX = minLng - dimensions.minX;
+    offsetY = minLat + dimensions.maxY;
+  } else {
+    transformX = -1;
+    transformY = 1;
+    offsetX = minLng + dimensions.maxX;
+    offsetY = minLat - dimensions.minY;
+  }
 
   return L.Util.extend(L.CRS, {
     projection: L.Projection.LonLat,
-    transformation: new L.Transformation(1, offsetX, -1, -offsetY),
+    transformation: new L.Transformation(
+      transformX,
+      offsetX,
+      transformY,
+      offsetY
+    ),
+    // transformation: new L.Transformation(-1, offsetX + lengthMax, -1, -offsetY + lengthMax),
     scale(zoom: number) {
       return tileSize / lengthMax * Math.pow(2, zoom);
     },

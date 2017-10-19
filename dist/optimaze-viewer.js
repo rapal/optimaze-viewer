@@ -52,13 +52,29 @@ function getCRS(dimensions) {
     var lengthX = dimensions.maxX - dimensions.minX;
     var lengthY = dimensions.maxY - dimensions.minY;
     var lengthMax = Math.max(lengthX, lengthY);
-    var minLat = (lengthMax - lengthY) / 2 - lengthMax;
+    var minLat = (lengthMax - lengthY) / 2;
     var minLng = (lengthMax - lengthX) / 2;
-    var offsetY = minLat - dimensions.minY;
-    var offsetX = minLng - dimensions.minX;
+    var rotate = true;
+    var transformX;
+    var transformY;
+    var offsetX;
+    var offsetY;
+    if (!rotate) {
+        transformX = 1;
+        transformY = -1;
+        offsetX = minLng - dimensions.minX;
+        offsetY = minLat + dimensions.maxY;
+    }
+    else {
+        transformX = -1;
+        transformY = 1;
+        offsetX = minLng + dimensions.maxX;
+        offsetY = minLat - dimensions.minY;
+    }
     return L.Util.extend(L.CRS, {
         projection: L.Projection.LonLat,
-        transformation: new L.Transformation(1, offsetX, -1, -offsetY),
+        transformation: new L.Transformation(transformX, offsetX, transformY, offsetY),
+        // transformation: new L.Transformation(-1, offsetX + lengthMax, -1, -offsetY + lengthMax),
         scale: function (zoom) {
             return tileSize / lengthMax * Math.pow(2, zoom);
         },
@@ -282,7 +298,13 @@ var FunctionalTileLayer = /** @class */ (function (_super) {
      */
     FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
         var _this = this;
+        var tileDiv = document.createElement("div");
         var tile = document.createElement("img");
+        // TODO
+        var rotation = MapRotation.Rotate180;
+        tile.style.transform = "rotate(180deg)";
+        var rotatedCoordinates = rotateCoordinates(coordinates, rotation);
+        // const rotatedCoordinates = coordinates;
         L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
         L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
         if (this.options.crossOrigin) {
@@ -291,9 +313,9 @@ var FunctionalTileLayer = /** @class */ (function (_super) {
         tile.alt = "";
         tile.setAttribute("role", "presentation");
         var fixedCoordinates = {
-            x: coordinates.x,
-            y: coordinates.y,
-            z: coordinates.z + (this.options.zoomOffset || 0)
+            x: rotatedCoordinates.x,
+            y: rotatedCoordinates.y,
+            z: rotatedCoordinates.z + (this.options.zoomOffset || 0)
         };
         this._tileFunction(fixedCoordinates).then(function (url) {
             tile.src = url;
@@ -302,7 +324,8 @@ var FunctionalTileLayer = /** @class */ (function (_super) {
                 url: tile.src
             });
         });
-        return tile;
+        tileDiv.appendChild(tile);
+        return tileDiv;
     };
     return FunctionalTileLayer;
 }(L.TileLayer));
@@ -321,6 +344,23 @@ var FunctionalTileLayer = /** @class */ (function (_super) {
     GraphicsLayer[GraphicsLayer["Shafts"] = 11] = "Shafts";
     GraphicsLayer[GraphicsLayer["Atrium"] = 23] = "Atrium";
 })(exports.GraphicsLayer || (exports.GraphicsLayer = {}));
+var MapRotation;
+(function (MapRotation) {
+    MapRotation[MapRotation["Rotate0"] = 0] = "Rotate0";
+    MapRotation[MapRotation["Rotate90"] = 90] = "Rotate90";
+    MapRotation[MapRotation["Rotate180"] = 180] = "Rotate180";
+    MapRotation[MapRotation["Rotate270"] = 270] = "Rotate270";
+})(MapRotation || (MapRotation = {}));
+function rotateCoordinates(coordinates, rotatation) {
+    if (rotatation === MapRotation.Rotate180) {
+        return {
+            x: Math.pow(2, coordinates.z) - 1 - coordinates.x,
+            y: Math.pow(2, coordinates.z) - 1 - coordinates.y,
+            z: coordinates.z
+        };
+    }
+    throw new Error("Not supported");
+}
 
 exports.Viewer = Viewer;
 exports.Element = Element;

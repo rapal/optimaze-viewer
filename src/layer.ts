@@ -43,8 +43,16 @@ export class FunctionalTileLayer extends L.TileLayer {
   protected createTile(
     coordinates: TileCoordinates,
     done: () => void
-  ): HTMLImageElement {
+  ): HTMLDivElement {
+    const tileDiv = document.createElement("div");
     const tile = document.createElement("img");
+
+    // TODO
+    const rotation = MapRotation.Rotate180;
+    tile.style.transform = "rotate(180deg)";
+
+    const rotatedCoordinates = rotateCoordinates(coordinates, rotation);
+    // const rotatedCoordinates = coordinates;
 
     L.DomEvent.on(
       tile,
@@ -66,9 +74,9 @@ export class FunctionalTileLayer extends L.TileLayer {
     tile.setAttribute("role", "presentation");
 
     const fixedCoordinates = {
-      x: coordinates.x,
-      y: coordinates.y,
-      z: coordinates.z + (this.options.zoomOffset || 0)
+      x: rotatedCoordinates.x,
+      y: rotatedCoordinates.y,
+      z: rotatedCoordinates.z + (this.options.zoomOffset || 0)
     };
 
     this._tileFunction(fixedCoordinates).then(url => {
@@ -79,7 +87,8 @@ export class FunctionalTileLayer extends L.TileLayer {
       });
     });
 
-    return tile;
+    tileDiv.appendChild(tile);
+    return tileDiv;
   }
 }
 
@@ -104,4 +113,26 @@ export enum GraphicsLayer {
   Elevators = 9,
   Shafts = 11,
   Atrium = 23
+}
+
+export enum MapRotation {
+  Rotate0 = 0,
+  Rotate90 = 90,
+  Rotate180 = 180,
+  Rotate270 = 270
+}
+
+function rotateCoordinates(
+  coordinates: TileCoordinates,
+  rotatation: MapRotation
+): TileCoordinates {
+  if (rotatation === MapRotation.Rotate180) {
+    return {
+      x: Math.pow(2, coordinates.z) - 1 - coordinates.x,
+      y: Math.pow(2, coordinates.z) - 1 - coordinates.y,
+      z:  coordinates.z
+    };
+  }
+
+  throw new Error("Not supported");
 }

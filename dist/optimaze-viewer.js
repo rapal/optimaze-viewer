@@ -71,21 +71,14 @@ function getCRS(dimensions) {
         offsetX = minLng + dimensions.maxX;
         offsetY = minLat - dimensions.minY;
     }
-    return L.Util.extend(L.CRS, {
-        projection: L.Projection.LonLat,
+    return L.Util.extend(L.CRS.Simple, {
         transformation: new L.Transformation(transformX, offsetX, transformY, offsetY),
-        // transformation: new L.Transformation(-1, offsetX + lengthMax, -1, -offsetY + lengthMax),
         scale: function (zoom) {
             return tileSize / lengthMax * Math.pow(2, zoom);
         },
         zoom: function (scale) {
             return Math.log(scale * lengthMax / tileSize) / Math.LN2;
-        },
-        getSize: function (zoom) {
-            var s = this.scale(zoom) / this.lengthMax;
-            return new L.Point(s, s);
-        },
-        infinite: true
+        }
     });
 }
 

@@ -18,12 +18,11 @@ export class FunctionalTileLayer extends L.TileLayer {
     options?: L.TileLayerOptions
   ) {
     const defaultOptions: L.TileLayerOptions = {
-      tileSize: 384,
+      tileSize: L.Browser.retina ? 384 / 2 : 384,
       bounds: getBounds(dimensions),
       minZoom: 0,
       maxZoom: 10,
-      maxNativeZoom: L.Browser.retina ? 3 : 4,
-      detectRetina: true,
+      maxNativeZoom: 4,
       noWrap: true
     };
 
@@ -104,4 +103,9 @@ export enum GraphicsLayer {
   Elevators = 9,
   Shafts = 11,
   Atrium = 23
+}
+
+export function getTileSize() {
+  const baseTileSize = 384;
+  return L.Browser.retina ? baseTileSize / 2 : baseTileSize;
 }

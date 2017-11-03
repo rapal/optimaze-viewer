@@ -37,3 +37,4 @@ export declare enum GraphicsLayer {
     Shafts = 11,
     Atrium = 23,
 }
+export declare function getTileSize(): number;

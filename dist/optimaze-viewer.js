@@ -47,8 +47,81 @@ function getBounds(dimensions) {
     return new L.LatLngBounds(southWest, northEast);
 }
 
+var FunctionalTileLayer = /** @class */ (function (_super) {
+    __extends(FunctionalTileLayer, _super);
+    /**
+     * Tile layer where the image url is resolved using a function instead of a template.
+     * Can be used to fetch images as data urls from an authenticated API.
+     * Uses appropriate default options for Optimaze graphics layers.
+     * Default options can be overwritten or extended by passing custom options.
+     */
+    function FunctionalTileLayer(tileFunction, dimensions, options) {
+        var _this = this;
+        var defaultOptions = {
+            tileSize: L.Browser.retina ? 384 / 2 : 384,
+            bounds: getBounds(dimensions),
+            minZoom: 0,
+            maxZoom: 10,
+            maxNativeZoom: 4,
+            noWrap: true
+        };
+        var combinedOptions = __assign({}, defaultOptions, options);
+        _this = _super.call(this, "", combinedOptions) || this;
+        _this._tileFunction = tileFunction;
+        return _this;
+    }
+    /**
+     * Overrides the default tile creation method.
+     * Creates an img element and calls the tile function to get a promise to resolve the url.
+     */
+    FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
+        var _this = this;
+        var tile = document.createElement("img");
+        L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
+        L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
+        if (this.options.crossOrigin) {
+            tile.crossOrigin = "";
+        }
+        tile.alt = "";
+        tile.setAttribute("role", "presentation");
+        var fixedCoordinates = {
+            x: coordinates.x,
+            y: coordinates.y,
+            z: coordinates.z + (this.options.zoomOffset || 0)
+        };
+        this._tileFunction(fixedCoordinates).then(function (url) {
+            tile.src = url;
+            _this.fire("tileloadstart", {
+                tile: tile,
+                url: tile.src
+            });
+        });
+        return tile;
+    };
+    return FunctionalTileLayer;
+}(L.TileLayer));
+/**
+ * Enum for Optimaze graphics tile layers.
+ */
+
+(function (GraphicsLayer) {
+    GraphicsLayer[GraphicsLayer["BearingArea"] = 3] = "BearingArea";
+    GraphicsLayer[GraphicsLayer["RentableArea"] = 4] = "RentableArea";
+    GraphicsLayer[GraphicsLayer["GrossArea"] = 5] = "GrossArea";
+    GraphicsLayer[GraphicsLayer["Architect"] = 6] = "Architect";
+    GraphicsLayer[GraphicsLayer["Furniture"] = 7] = "Furniture";
+    GraphicsLayer[GraphicsLayer["OuterWall"] = 8] = "OuterWall";
+    GraphicsLayer[GraphicsLayer["Elevators"] = 9] = "Elevators";
+    GraphicsLayer[GraphicsLayer["Shafts"] = 11] = "Shafts";
+    GraphicsLayer[GraphicsLayer["Atrium"] = 23] = "Atrium";
+})(exports.GraphicsLayer || (exports.GraphicsLayer = {}));
+function getTileSize() {
+    var baseTileSize = 384;
+    return L.Browser.retina ? baseTileSize / 2 : baseTileSize;
+}
+
 function getCRS(dimensions) {
-    var tileSize = 384;
+    var tileSize = getTileSize();
     var lengthX = dimensions.maxX - dimensions.minX;
     var lengthY = dimensions.maxY - dimensions.minY;
     var lengthMax = Math.max(lengthX, lengthY);
@@ -251,76 +324,6 @@ var Space = /** @class */ (function (_super) {
     };
     return Space;
 }(Element));
-
-var FunctionalTileLayer = /** @class */ (function (_super) {
-    __extends(FunctionalTileLayer, _super);
-    /**
-     * Tile layer where the image url is resolved using a function instead of a template.
-     * Can be used to fetch images as data urls from an authenticated API.
-     * Uses appropriate default options for Optimaze graphics layers.
-     * Default options can be overwritten or extended by passing custom options.
-     */
-    function FunctionalTileLayer(tileFunction, dimensions, options) {
-        var _this = this;
-        var defaultOptions = {
-            tileSize: 384,
-            bounds: getBounds(dimensions),
-            minZoom: 0,
-            maxZoom: 10,
-            maxNativeZoom: L.Browser.retina ? 3 : 4,
-            detectRetina: true,
-            noWrap: true
-        };
-        var combinedOptions = __assign({}, defaultOptions, options);
-        _this = _super.call(this, "", combinedOptions) || this;
-        _this._tileFunction = tileFunction;
-        return _this;
-    }
-    /**
-     * Overrides the default tile creation method.
-     * Creates an img element and calls the tile function to get a promise to resolve the url.
-     */
-    FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
-        var _this = this;
-        var tile = document.createElement("img");
-        L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
-        L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
-        if (this.options.crossOrigin) {
-            tile.crossOrigin = "";
-        }
-        tile.alt = "";
-        tile.setAttribute("role", "presentation");
-        var fixedCoordinates = {
-            x: coordinates.x,
-            y: coordinates.y,
-            z: coordinates.z + (this.options.zoomOffset || 0)
-        };
-        this._tileFunction(fixedCoordinates).then(function (url) {
-            tile.src = url;
-            _this.fire("tileloadstart", {
-                tile: tile,
-                url: tile.src
-            });
-        });
-        return tile;
-    };
-    return FunctionalTileLayer;
-}(L.TileLayer));
-/**
- * Enum for Optimaze graphics tile layers.
- */
-
-(function (GraphicsLayer) {
-    GraphicsLayer[GraphicsLayer["BearingArea"] = 3] = "BearingArea";
-    GraphicsLayer[GraphicsLayer["RentableArea"] = 4] = "RentableArea";
-    GraphicsLayer[GraphicsLayer["GrossArea"] = 5] = "GrossArea";
-    GraphicsLayer[GraphicsLayer["Architect"] = 6] = "Architect";
-    GraphicsLayer[GraphicsLayer["Furniture"] = 7] = "Furniture";
-    GraphicsLayer[GraphicsLayer["OuterWall"] = 8] = "OuterWall";
-    GraphicsLayer[GraphicsLayer["Elevators"] = 9] = "Elevators";
-    GraphicsLayer[GraphicsLayer["Shafts"] = 11] = "Shafts";
-    GraphicsLayer[GraphicsLayer["Atrium"] = 23] = "Atrium";
-})(exports.GraphicsLayer || (exports.GraphicsLayer = {}));
 
 exports.Viewer = Viewer;
 exports.Element = Element;

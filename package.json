@@ -1,6 +1,6 @@
 {
   "name": "@rapal/optimaze-viewer",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Library for viewing Optimaze floor plan. Based on Leaflet.",
   "main": "./dist/optimaze-viewer.js",
   "types": "./types/index.d.ts",

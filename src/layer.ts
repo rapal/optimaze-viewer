@@ -18,7 +18,7 @@ export class FunctionalTileLayer extends L.TileLayer {
     options?: L.TileLayerOptions
   ) {
     const defaultOptions: L.TileLayerOptions = {
-      tileSize: L.Browser.retina ? 384 / 2 : 384,
+      tileSize: getTileSize(),
       bounds: getBounds(dimensions),
       minZoom: 0,
       maxZoom: 10,

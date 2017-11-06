@@ -1,8 +1,9 @@
 import * as L from "leaflet";
 import { Dimensions } from "./dimensions";
+import { getTileSize } from "./layer";
 
 export function getCRS(dimensions: Dimensions): L.CRS {
-  const tileSize = 384;
+  const tileSize = getTileSize();
 
   const lengthX = dimensions.maxX - dimensions.minX;
   const lengthY = dimensions.maxY - dimensions.minY;

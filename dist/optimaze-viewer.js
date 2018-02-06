@@ -47,8 +47,105 @@ function getBounds(dimensions) {
     return new L.LatLngBounds(southWest, northEast);
 }
 
+var FunctionalTileLayer = /** @class */ (function (_super) {
+    __extends(FunctionalTileLayer, _super);
+    /**
+     * Tile layer where the image url is resolved using a function instead of a template.
+     * Can be used to fetch images as data urls from an authenticated API.
+     * Uses appropriate default options for Optimaze graphics layers.
+     * Default options can be overwritten or extended by passing custom options.
+     */
+    function FunctionalTileLayer(tileFunction, dimensions, options) {
+        var _this = this;
+        var defaultOptions = {
+            tileSize: getTileSize(),
+            bounds: getBounds(dimensions),
+            minZoom: 0,
+            maxZoom: 10,
+            maxNativeZoom: 4,
+            noWrap: true
+        };
+        var combinedOptions = __assign({}, defaultOptions, options);
+        _this = _super.call(this, "", combinedOptions) || this;
+        _this._tileFunction = tileFunction;
+        return _this;
+    }
+    /**
+     * Overrides the default tile creation method.
+     * Creates an img element and calls the tile function to get a promise to resolve the url.
+     */
+    FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
+        var _this = this;
+        var tileDiv = document.createElement("div");
+        var tile = document.createElement("img");
+        // TODO
+        var rotation = MapRotation.Rotate180;
+        tile.style.transform = "rotate(180deg)";
+        var rotatedCoordinates = rotateCoordinates(coordinates, rotation);
+        // const rotatedCoordinates = coordinates;
+        L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
+        L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
+        if (this.options.crossOrigin) {
+            tile.crossOrigin = "";
+        }
+        tile.alt = "";
+        tile.setAttribute("role", "presentation");
+        var fixedCoordinates = {
+            x: rotatedCoordinates.x,
+            y: rotatedCoordinates.y,
+            z: rotatedCoordinates.z + (this.options.zoomOffset || 0)
+        };
+        this._tileFunction(fixedCoordinates).then(function (url) {
+            tile.src = url;
+            _this.fire("tileloadstart", {
+                tile: tile,
+                url: tile.src
+            });
+        });
+        tileDiv.appendChild(tile);
+        return tileDiv;
+    };
+    return FunctionalTileLayer;
+}(L.TileLayer));
+/**
+ * Enum for Optimaze graphics tile layers.
+ */
+
+(function (GraphicsLayer) {
+    GraphicsLayer[GraphicsLayer["BearingArea"] = 3] = "BearingArea";
+    GraphicsLayer[GraphicsLayer["RentableArea"] = 4] = "RentableArea";
+    GraphicsLayer[GraphicsLayer["GrossArea"] = 5] = "GrossArea";
+    GraphicsLayer[GraphicsLayer["Architect"] = 6] = "Architect";
+    GraphicsLayer[GraphicsLayer["Furniture"] = 7] = "Furniture";
+    GraphicsLayer[GraphicsLayer["OuterWall"] = 8] = "OuterWall";
+    GraphicsLayer[GraphicsLayer["Elevators"] = 9] = "Elevators";
+    GraphicsLayer[GraphicsLayer["Shafts"] = 11] = "Shafts";
+    GraphicsLayer[GraphicsLayer["Atrium"] = 23] = "Atrium";
+})(exports.GraphicsLayer || (exports.GraphicsLayer = {}));
+function getTileSize() {
+    var baseTileSize = 384;
+    return L.Browser.retina ? baseTileSize / 2 : baseTileSize;
+}
+var MapRotation;
+(function (MapRotation) {
+    MapRotation[MapRotation["Rotate0"] = 0] = "Rotate0";
+    MapRotation[MapRotation["Rotate90"] = 90] = "Rotate90";
+    MapRotation[MapRotation["Rotate180"] = 180] = "Rotate180";
+    MapRotation[MapRotation["Rotate270"] = 270] = "Rotate270";
+})(MapRotation || (MapRotation = {}));
+function rotateCoordinates(coordinates, rotatation) {
+    if (rotatation === MapRotation.Rotate180) {
+        return {
+            x: Math.pow(2, coordinates.z) - 1 - coordinates.x,
+            y: Math.pow(2, coordinates.z) - 1 - coordinates.y,
+            z: coordinates.z
+        };
+    }
+    throw new Error("Not supported");
+}
+
 function getCRS(dimensions) {
-    var tileSize = 384;
+    var tileSize = getTileSize();
     var lengthX = dimensions.maxX - dimensions.minX;
     var lengthY = dimensions.maxY - dimensions.minY;
     var lengthMax = Math.max(lengthX, lengthY);
@@ -264,100 +361,6 @@ var Space = /** @class */ (function (_super) {
     };
     return Space;
 }(Element));
-
-var FunctionalTileLayer = /** @class */ (function (_super) {
-    __extends(FunctionalTileLayer, _super);
-    /**
-     * Tile layer where the image url is resolved using a function instead of a template.
-     * Can be used to fetch images as data urls from an authenticated API.
-     * Uses appropriate default options for Optimaze graphics layers.
-     * Default options can be overwritten or extended by passing custom options.
-     */
-    function FunctionalTileLayer(tileFunction, dimensions, options) {
-        var _this = this;
-        var defaultOptions = {
-            tileSize: 384,
-            bounds: getBounds(dimensions),
-            minZoom: 0,
-            maxZoom: 10,
-            maxNativeZoom: L.Browser.retina ? 3 : 4,
-            detectRetina: true,
-            noWrap: true
-        };
-        var combinedOptions = __assign({}, defaultOptions, options);
-        _this = _super.call(this, "", combinedOptions) || this;
-        _this._tileFunction = tileFunction;
-        return _this;
-    }
-    /**
-     * Overrides the default tile creation method.
-     * Creates an img element and calls the tile function to get a promise to resolve the url.
-     */
-    FunctionalTileLayer.prototype.createTile = function (coordinates, done) {
-        var _this = this;
-        var tileDiv = document.createElement("div");
-        var tile = document.createElement("img");
-        // TODO
-        var rotation = MapRotation.Rotate180;
-        tile.style.transform = "rotate(180deg)";
-        var rotatedCoordinates = rotateCoordinates(coordinates, rotation);
-        // const rotatedCoordinates = coordinates;
-        L.DomEvent.on(tile, "load", L.Util.bind(this._tileOnLoad, this, done, tile));
-        L.DomEvent.on(tile, "error", L.Util.bind(this._tileOnError, this, done, tile));
-        if (this.options.crossOrigin) {
-            tile.crossOrigin = "";
-        }
-        tile.alt = "";
-        tile.setAttribute("role", "presentation");
-        var fixedCoordinates = {
-            x: rotatedCoordinates.x,
-            y: rotatedCoordinates.y,
-            z: rotatedCoordinates.z + (this.options.zoomOffset || 0)
-        };
-        this._tileFunction(fixedCoordinates).then(function (url) {
-            tile.src = url;
-            _this.fire("tileloadstart", {
-                tile: tile,
-                url: tile.src
-            });
-        });
-        tileDiv.appendChild(tile);
-        return tileDiv;
-    };
-    return FunctionalTileLayer;
-}(L.TileLayer));
-/**
- * Enum for Optimaze graphics tile layers.
- */
-
-(function (GraphicsLayer) {
-    GraphicsLayer[GraphicsLayer["BearingArea"] = 3] = "BearingArea";
-    GraphicsLayer[GraphicsLayer["RentableArea"] = 4] = "RentableArea";
-    GraphicsLayer[GraphicsLayer["GrossArea"] = 5] = "GrossArea";
-    GraphicsLayer[GraphicsLayer["Architect"] = 6] = "Architect";
-    GraphicsLayer[GraphicsLayer["Furniture"] = 7] = "Furniture";
-    GraphicsLayer[GraphicsLayer["OuterWall"] = 8] = "OuterWall";
-    GraphicsLayer[GraphicsLayer["Elevators"] = 9] = "Elevators";
-    GraphicsLayer[GraphicsLayer["Shafts"] = 11] = "Shafts";
-    GraphicsLayer[GraphicsLayer["Atrium"] = 23] = "Atrium";
-})(exports.GraphicsLayer || (exports.GraphicsLayer = {}));
-var MapRotation;
-(function (MapRotation) {
-    MapRotation[MapRotation["Rotate0"] = 0] = "Rotate0";
-    MapRotation[MapRotation["Rotate90"] = 90] = "Rotate90";
-    MapRotation[MapRotation["Rotate180"] = 180] = "Rotate180";
-    MapRotation[MapRotation["Rotate270"] = 270] = "Rotate270";
-})(MapRotation || (MapRotation = {}));
-function rotateCoordinates(coordinates, rotatation) {
-    if (rotatation === MapRotation.Rotate180) {
-        return {
-            x: Math.pow(2, coordinates.z) - 1 - coordinates.x,
-            y: Math.pow(2, coordinates.z) - 1 - coordinates.y,
-            z: coordinates.z
-        };
-    }
-    throw new Error("Not supported");
-}
 
 exports.Viewer = Viewer;
 exports.Element = Element;

@@ -37,6 +37,7 @@ export declare enum GraphicsLayer {
     Shafts = 11,
     Atrium = 23,
 }
+export declare function getTileSize(): number;
 export declare enum MapRotation {
     Rotate0 = 0,
     Rotate90 = 90,

@@ -14,7 +14,7 @@ The library currently provides the following features:
 
 To install using npm, run:
 
-```
+```console
 npm install @rapal/optimaze-viewer
 ```
 
@@ -24,6 +24,7 @@ You can then import the library:
 import { Viewer, Space, Element } from "@rapal/optimaze-viewer";
 var viewer = new Viewer(...);
 ```
+
 Remember to also include the Leaflet CSS file:
 
 ```js
@@ -56,7 +57,7 @@ There is also an [example application](https://github.com/rapal/optimaze-viewer-
 
 ### Requirements
 
-* [Yarn](https://yarnpkg.com/) package manager
+- [Yarn](https://yarnpkg.com/) package manager
 
 ### Workflow
 
@@ -72,6 +73,6 @@ There is also an [example application](https://github.com/rapal/optimaze-viewer-
 
 ### Directories
 
-* `src` TypeScript source files
-* `types` TypeScript declaration files
-* `dist` UMD bundle for use in browser
+- `src` TypeScript source files
+- `types` TypeScript declaration files
+- `dist` UMD bundle for use in browser

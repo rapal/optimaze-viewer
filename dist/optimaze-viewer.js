@@ -58,7 +58,7 @@ var FunctionalTileLayer = /** @class */ (function (_super) {
     function FunctionalTileLayer(tileFunction, dimensions, options) {
         var _this = this;
         var defaultOptions = {
-            tileSize: L.Browser.retina ? 384 / 2 : 384,
+            tileSize: getTileSize(),
             bounds: getBounds(dimensions),
             minZoom: 0,
             maxZoom: 10,
@@ -325,10 +325,38 @@ var Space = /** @class */ (function (_super) {
     return Space;
 }(Element));
 
+/**
+ * Override circle projection so that radius is always the same for circles of the same size.
+ * Without this fix, circle projected radius will vary by 1-2px depending on circle location.
+ */
+var FixedCircle = /** @class */ (function (_super) {
+    __extends(FixedCircle, _super);
+    function FixedCircle() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    FixedCircle.prototype._project = function () {
+        var map = this._map;
+        var crs = map.options.crs;
+        if (!crs) {
+            return;
+        }
+        var latlng2 = crs.unproject(crs.project(this._latlng).subtract([this._mRadius, 0]));
+        // Calculate radius using non-rounded values to prevent rounding errors
+        var point = crs.latLngToPoint(L.latLng(this._latlng), map.getZoom());
+        var point2 = crs.latLngToPoint(L.latLng(latlng2), map.getZoom());
+        var radius = Math.round(point.x - point2.x);
+        this._point = map.latLngToLayerPoint(this._latlng);
+        this._radius = radius;
+        this._updateBounds();
+    };
+    return FixedCircle;
+}(L.Circle));
+
 exports.Viewer = Viewer;
 exports.Element = Element;
 exports.Space = Space;
 exports.FunctionalTileLayer = FunctionalTileLayer;
+exports.FixedCircle = FixedCircle;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

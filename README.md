@@ -53,6 +53,10 @@ See the files in the `types` directory for documentation.
 
 There is also an [example application](https://github.com/rapal/optimaze-viewer-example) that shows how you can use the library.
 
+### Notes
+
+The `FixedCircle` class can be used instead of `L.Circle` to prevent circle radius rounding errors.
+
 ## Development
 
 ### Requirements

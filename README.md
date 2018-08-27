@@ -14,7 +14,7 @@ The library currently provides the following features:
 
 To install using npm, run:
 
-```
+```console
 npm install @rapal/optimaze-viewer
 ```
 
@@ -24,6 +24,7 @@ You can then import the library:
 import { Viewer, Space, Element } from "@rapal/optimaze-viewer";
 var viewer = new Viewer(...);
 ```
+
 Remember to also include the Leaflet CSS file:
 
 ```js
@@ -52,11 +53,15 @@ See the files in the `types` directory for documentation.
 
 There is also an [example application](https://github.com/rapal/optimaze-viewer-example) that shows how you can use the library.
 
+### Notes
+
+The `FixedCircle` class can be used instead of `L.Circle` to prevent circle radius rounding errors.
+
 ## Development
 
 ### Requirements
 
-* [Yarn](https://yarnpkg.com/) package manager
+- [Yarn](https://yarnpkg.com/) package manager
 
 ### Workflow
 
@@ -72,6 +77,6 @@ There is also an [example application](https://github.com/rapal/optimaze-viewer-
 
 ### Directories
 
-* `src` TypeScript source files
-* `types` TypeScript declaration files
-* `dist` UMD bundle for use in browser
+- `src` TypeScript source files
+- `types` TypeScript declaration files
+- `dist` UMD bundle for use in browser

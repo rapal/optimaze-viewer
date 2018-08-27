@@ -7,11 +7,11 @@ export default {
   output: {
     file: "./dist/optimaze-viewer.js",
     format: "umd",
-    name: "optimazeViewer"
+    name: "optimazeViewer",
+    globals: {
+      leaflet: "L"
+    }
   },
   plugins: [typescript(), commonjs(), resolve()],
-  external: ["leaflet"],
-  globals: {
-    leaflet: "L"
-  }
+  external: ["leaflet"]
 };

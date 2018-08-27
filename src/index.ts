@@ -8,3 +8,4 @@ export {
   TileCoordinates,
   GraphicsLayer
 } from "./layer";
+export { FixedCircle } from "./fixedcircle";
